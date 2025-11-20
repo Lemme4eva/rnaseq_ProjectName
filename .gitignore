@@ -1,0 +1,16 @@
+# RNA-Seq specific ignores
+data/raw_data/*
+data/reference_data/*
+data/meta_data/*
+data/processed_data/*
+results/*
+logs/
+.Rhistory
+.RData
+.Rproj.user
+renv/library/
+renv/staging/
+.Renviron
+.httr-oauth
+.DS_Store
+.quarto
