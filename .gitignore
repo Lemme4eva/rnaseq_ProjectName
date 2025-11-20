@@ -2,7 +2,7 @@
 data/raw_data/*
 data/reference_data/*
 data/meta_data/*
-data/processed_data/*
+#data/processed_data/*
 results/*
 logs/
 .Rhistory
