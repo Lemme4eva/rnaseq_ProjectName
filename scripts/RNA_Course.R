@@ -760,19 +760,19 @@ ggplot(res_spleen_df, aes(x = log2FoldChange, y = -log10(padj), color = signific
 
 #### Exercise 8: Perform GO enrichment (ORA analysis) on the DE genes(UP and Down). ####
 
-uni_genes_spleen <- results(dds_spleen) |>
+uni_genes_spleen <- results(dds_spleen, name="sex_male_vs_female") |>
   as.data.frame() |>
   filter(!is.na(padj)) |>
   rownames()
-de_genes_spleen_up <- results(dds_spleen) |>
+de_genes_spleen_up <- results(dds_spleen, name="sex_male_vs_female") |>
   as.data.frame() |>
   filter(!is.na(padj), padj <= 0.05, log2FoldChange > 0) |>
   rownames()
-de_genes_spleen_dn <- results(dds_spleen) |>
+de_genes_spleen_dn <- results(dds_spleen, name="sex_male_vs_female") |>
   as.data.frame() |>
   filter(!is.na(padj), padj <= 0.05, log2FoldChange < 0) |>
   rownames()
-de_genes_spleen_both <- results(dds_spleen) |>
+de_genes_spleen_both <- results(dds_spleen, name="sex_male_vs_female") |>
   as.data.frame() |>
   filter(!is.na(padj), padj <= 0.05, log2FoldChange != 0) |>
   rownames()
