@@ -1,15 +1,13 @@
-source("R/volcano.R")
-
 
 column_boxplots <-
     function(dds) {
         require("reshape2")
-        
+
         ## melt the input matrix
         df <-
             rbind(reshape2::melt(log10(counts(dds,normalized=FALSE)+1)) |>
                   mutate(mode="raw"),
-                  
+
                   reshape2::melt(log10(counts(dds,normalized=TRUE )+1)) |>
                   mutate(mode="normalized")
                   ) |>
@@ -19,8 +17,8 @@ column_boxplots <-
                              levels=c("raw","normalized")
                              )
                )
-        
-        
+
+
         ggplot(df,
                aes(y=sample,x=count,fill=group)
                ) +
@@ -56,20 +54,20 @@ subset_counts <-
         if(!include) keep  <- !keep
 
         dds_sub <- dds[,keep]
-        
+
         if(refit) {
             use_design <- design(dds)
-            
+
             if(include) {
                 ## if SINGLE levels are extracted (silently ASSUMED!),
                 ## then the corresponding factors become meaningless
                 ## in the design: remove them!
 
                 ## -------------------------------------------------
-                ## NOTE: This simple solution works only 
+                ## NOTE: This simple solution works only
                 ## for all-"+" or all-"*" designs!!
                 ## -------------------------------------------------
-                
+
                 f <- as.character(design(dds)) ## a vector of length 2;
                                                ## [1] is "~",
                                                ## [2[ is the expression
@@ -77,29 +75,29 @@ subset_counts <-
                 do_drop <- intersect(strsplit(f[2],
                                               "\\s*[+*]\\s*")[[1]],
                                      names(level_list))
-                
+
                 ## first simply delete each variable:
                 for(v in do_drop) f[2] <- sub(v,"",f[2])
 
                 ## this will create an invalid formula --
                 ## correct by removing adjacent duplicate components:
-                x <- strsplit(f[2],"\\s+")[[1]] 
+                x <- strsplit(f[2],"\\s+")[[1]]
                 keep <- x[c(TRUE,!(x[-1] == x[-length(x)]))]
 
                 use_design <- as.formula(paste(f[1],
                                                paste(keep, collapse=" ")
                                                )
                                          )
-                                                          
+
             }
-            
+
             DESeqDataSetFromMatrix(countData = counts(dds_sub,
                                                       normalized=FALSE),
                                    colData = colData(dds_sub),
                                    design  = use_design
                                    ) |>
             DESeq()
-            
+
         } else {
             dds_sub
         }
@@ -121,7 +119,7 @@ volcano_plot <-
 
 runORA <-
     function(genes, universe,OrgDb,keyType,
-             
+
              ontologies   = c("BP","MF","CC"),
              minGSSize    = 10,
              maxGSSize    = 500,
@@ -132,7 +130,7 @@ runORA <-
 
 
         stopifnot(all(ontologies %in% c("BP","MF","CC")))
-        
+
         # return a list of results, one per ontology
         sapply(ontologies,
                function(ont) {
@@ -143,13 +141,13 @@ runORA <-
                                         keyType=keyType,
                                         ont=ont)
                },simplify=FALSE)
-                 
+
 }
 
 
 runGSEA <-
     function(geneList,OrgDb,keyType,
-             
+
              ontologies   = c("BP","MF","CC"),
              minGSSize    = 10,
              maxGSSize    = 500,
@@ -164,7 +162,7 @@ runGSEA <-
 
 
         stopifnot(all(ontologies %in% c("BP","MF","CC")))
-        
+
         # return a list of results, one per ontology
         sapply(ontologies,
                function(ont) {
@@ -172,7 +170,7 @@ runGSEA <-
                                         geneList = geneList,
                                         OrgDb = OrgDb,
                                         keyType = keyType,
-                                        
+
                                         ont=ont,
                                         minGSSize    = 10,
                                         maxGSSize    = 500,
@@ -183,5 +181,5 @@ runGSEA <-
                                         eps          = 1e-50,
                                         verbose      = FALSE)
                },simplify=FALSE)
-                 
+
 }

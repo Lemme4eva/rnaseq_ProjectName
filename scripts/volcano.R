@@ -1,35 +1,35 @@
 # from: /home/ugoebel/CECAD/Trifunovic/Project_Kaul/Analysis/MultiOmics/MixOmics/Testing_mixOmics/Testing_R-4.3.0/R/functionsUG.R
 ## A derivative of MetaboAnalystR::PlotVolcano
-## Original function name: my_MA_volcano 
+## Original function name: my_MA_volcano
 
 volcano <- function(df, ## a named data.frame with >= 3 columns,
                               use_cols = c(2,4,5),
                               ## applies to result from get_tx_l2fc)(this_pair=this_pair),
                               ## using p.value (p.adj would be column 6)
-                              
+
                               lfc_thrsh, p_thrsh,
-                              
+
                               highlight.what = NULL, ## a list of lists,
                                                      ## with sublist names = color names,
 						     ## sublist content = points to be highlighted
                               highlight.pointsize = 4, #2,##4,#6,
                               highlight.textsize = 6,
                               highlight.alpha = 0.5,
-                              
+
                               background.color = "grey",
                               background.pointsize = 3, #2, ##3,
                               background.textsize = 3,
                               background.alpha = 0.3,
 
                               nonsig.pointsize = 0.1,
-                              
-                              label.show = FALSE, 
+
+                              label.show = FALSE,
                               label.box  = FALSE,
-                              
+
                               imgName = "test_",
 
                               plotTheme = 0,
-                              format = "png", 
+                              format = "png",
                               dpi = 300, width = NA,
                               y_mode="simple",
                               y_breaks=NULL,
@@ -37,7 +37,7 @@ volcano <- function(df, ## a named data.frame with >= 3 columns,
                               y_break_which =NULL,
                               y_break_expand=FALSE,
                               y_break_space=0.1,
-                              
+
                               expand_ceiling=0,
                               check_label_overlap = TRUE,
                               ...
@@ -49,9 +49,9 @@ volcano <- function(df, ## a named data.frame with >= 3 columns,
                        !is.na(df[,use_cols[3]]))
 
     df <- data.frame(df)
-    
+
     df <- df[good_rows, use_cols]
-    
+
     if(!is.null(y_breaks)) {
         ## add a dummy very small dummy p-value to df to
         ## expand the range of -log10(p) upward
@@ -71,15 +71,15 @@ volcano <- function(df, ## a named data.frame with >= 3 columns,
     } else {
         data <- df
     }
-    
 
-    
+
+
     NOSHOW <- data[,1] == "NOSHOW"
     UP   <-   !NOSHOW & (data[,2] >=  lfc_thrsh)
     DOWN <-   !NOSHOW & (data[,2] <= -lfc_thrsh)
     P    <-   !NOSHOW & (-log10(data[,3]) >= -log10(p_thrsh))
     data$significant <- P&(UP|DOWN)
-    
+
     if(is.null(highlight.what)) {
         ## if not otherwise stated,
         ## highlight significant points
@@ -115,17 +115,17 @@ volcano <- function(df, ## a named data.frame with >= 3 columns,
                      function(x)length(x$symbols)
                      ),
               decreasing=TRUE)
-    
+
     for(group in names(highlight.what)[size_order]) {
         i <- which(data[,1] %in% highlight.what[[group]]$symbols)
-        
+
         if(length(i) > 0) {
             data$group[i] <- group
             data$color[i] <- highlight.what[[group]]$color
             data$pointsize[i] <- highlight.pointsize
             data$alpha[i] <- highlight.alpha
             data$highlighted[i] <- TRUE
-            
+
             if(label.show) {
                 data$label[i] <- data[i,1] ##data[1,i] ## UG Nov 17, 2025: ?? should be data[i,1] ????
                 data$textsize[i] <- highlight.textsize
@@ -135,7 +135,7 @@ volcano <- function(df, ## a named data.frame with >= 3 columns,
     ## finally, re-set the pointsize in the non-significant area,
     ## for all groups and for "other"
     data$pointsize[which(!data$significant)] <- nonsig.pointsize
-    
+
     ## re-order to have highlighted points last:
     data <- rbind(data %>% filter( group=="other"),
                   data %>% filter(!group=="other"))
@@ -156,7 +156,7 @@ volcano <- function(df, ## a named data.frame with >= 3 columns,
                                      )
                               ))
 
-                              
+
     ##data$highlighted <- as.factor(data$highlighted)
 
     alphas <- c("background genes"=background.alpha,
@@ -178,8 +178,8 @@ volcano <- function(df, ## a named data.frame with >= 3 columns,
 ##        w <- width
 ##    }
 ##    h <- w * 6/10
-##    
-##    Cairo::Cairo(file = imgName, unit = "in", dpi = dpi, width = w, 
+##
+##    Cairo::Cairo(file = imgName, unit = "in", dpi = dpi, width = w,
 ##       height = h, type = format, bg = "white")
 
     require(ggplot2)
@@ -188,22 +188,22 @@ volcano <- function(df, ## a named data.frame with >= 3 columns,
                     y = -log10(data[, 3]),
                     col = group,
                     alpha = plotregion,
-                    size  = plotregion, 
+                    size  = plotregion,
                     label = label)
                 ) +
         scale_color_manual(values = group_colors) +
-        scale_alpha_manual(values = alphas) + 
-        scale_size_manual(values = pointsizes) + 
-        
+        scale_alpha_manual(values = alphas) +
+        scale_size_manual(values = pointsizes) +
+
         geom_vline(xintercept = c(-lfc_thrsh, lfc_thrsh),
                    linetype = "dashed", color = "black") +
-        geom_hline(yintercept = -log10(p_thrsh), 
+        geom_hline(yintercept = -log10(p_thrsh),
                    linetype = "dashed", color = "black") +
         geom_point() +
         #geom_label() + #check_overlap = TRUE) +
         geom_text(check_overlap = check_label_overlap, color="black") +
-                
-                
+
+
         labs(x = "log2(FC)", y = "-log10(p)")
 
 
@@ -220,7 +220,7 @@ volcano <- function(df, ## a named data.frame with >= 3 columns,
     else {
         p <- p + theme_classic()
     }
-    
+
     if(!is.null(y_breaks)) {
         p <- p + ggbreak::scale_y_cut(
                               space=y_break_space,
@@ -229,10 +229,10 @@ volcano <- function(df, ## a named data.frame with >= 3 columns,
                               which=y_break_which,
                               expand= y_break_expand ## this adds the space!
                           )
-    } 
+    }
 
     p
 ##    print(p)
 ##    dev.off()
-    
+
 }
